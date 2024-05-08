@@ -8,7 +8,7 @@ const App = props => {
   const fetchMovies = () => {
     setLoading(true);
 
-    return fetch('http://localhost:8000/movies')
+    return fetch(`http://localhost:8000/movies`)
       .then(response => response.json())
       .then(data => {
         setMovies(data);
@@ -18,11 +18,16 @@ const App = props => {
 
   useEffect(() => {
     fetchMovies();
-  }, []);
+  }, []);     
+
+  const handleLatestClick = () => setMovies(prev => [...prev]?.sort((a, b) => b.year - a.year));
+
+  const handleLatestClickRating = () => setMovies(prev => [...prev]?.sort((a, b) => b.rating - a.rating));
 
   return (
     <Layout>
       <Heading />
+      <Order onLatestClick ={handleLatestClick} onLatestClickRating={handleLatestClickRating} />
 
       <MovieList loading={loading}>
         {movies.map((item, key) => (
@@ -56,6 +61,35 @@ const Heading = props => {
     </div>
   );
 };
+
+
+const Order = props => {
+  return (
+    <div className='mb-10'>
+      <p className='font-light text-gray-500 mb-3 sm:text-xl dark:text-gray-400'>
+        Displays movies based on the following sorting criteria:
+      </p>
+      <div className='flex flex-row gap-3'>
+        <Button
+          gradientMonochrome="info" 
+          size="md"
+          className='shadow-md'
+          onClick={props.onLatestClick}
+        >
+          Latest
+        </Button>
+        <Button 
+          gradientMonochrome="info" 
+          size="md" 
+          className='shadow-md'
+          onClick={props.onLatestClickRating}
+        >
+          Rating
+        </Button>
+      </div>
+    </div>
+  )
+}
 
 const MovieList = props => {
   if (props.loading) {
