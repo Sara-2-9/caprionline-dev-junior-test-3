@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Rating, Spinner } from 'flowbite-react';
+import { Label, Select } from "flowbite-react";
 
 const App = props => {
   const [movies, setMovies] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchMovies = () => {
@@ -16,8 +18,20 @@ const App = props => {
       });
   }
 
+  const fetchGenres = () => {
+    setLoading(true);
+
+    return fetch(`http://localhost:8000/genres`)
+      .then(response => response.json())
+      .then(data => {
+        setGenres(data);
+        setLoading(false);
+      });
+  }
+  
   useEffect(() => {
     fetchMovies();
+    fetchGenres();
   }, []);     
 
   const handleLatestClick = () => setMovies(prev => [...prev]?.sort((a, b) => b.year - a.year));
@@ -28,6 +42,7 @@ const App = props => {
     <Layout>
       <Heading />
       <Order onLatestClick ={handleLatestClick} onLatestClickRating={handleLatestClickRating} />
+      <SearchByGenre genres={genres} />
 
       <MovieList loading={loading}>
         {movies.map((item, key) => (
@@ -88,6 +103,22 @@ const Order = props => {
         </Button>
       </div>
     </div>
+  )
+}
+
+const SearchByGenre = ({ genres }) => {
+  return (
+    <div className="max-w-md">
+    <div className="mb-2 block">
+      <Label htmlFor="genres" value="Reorder movies by genre" className="font-light text-gray-500 mb-3 sm:text-xl dark:text-gray-400"/>
+    </div>
+    <Select id="genres" required className='mb-10'>
+      <option value="">Select a genre</option>
+      {genres.map((genre, key) => (
+          <option key={key} value={genre.id}>{genre.name}</option>
+        ))}
+    </Select>
+  </div>
   )
 }
 
