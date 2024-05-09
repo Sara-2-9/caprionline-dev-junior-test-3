@@ -5,6 +5,7 @@ import { Label, Select } from "flowbite-react";
 const App = props => {
   const [movies, setMovies] = useState([]);
   const [genres, setGenres] = useState([]);
+  const [showNotFoundMessage, setShowNotFoundMessage] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchMovies = () => {
@@ -35,9 +36,15 @@ const App = props => {
     return fetch(`http://localhost:8000/testFindOneBySomeField/${id}`)
     .then(response => response.json())
     .then(data => {
-      setMovies(data);
+      if (data.length > 0) {
+        setMovies(data);
+        setShowNotFoundMessage(false);
+      } else {
+        setMovies();
+        setShowNotFoundMessage(true); // Mostra il messaggio "Not found"
+      }
       setLoading(false);
-    });
+    })
   }
   
   useEffect(() => {
@@ -57,11 +64,15 @@ const App = props => {
       <Order onLatestClick ={handleLatestClick} onLatestClickRating={handleLatestClickRating} />
       <SearchByGenre genres={genres} onGenreChange={handleGenreChange}/>
 
-      <MovieList loading={loading}>
-        {movies.map((item, key) => (
-          <MovieItem key={key} {...item} />
-        ))}
-      </MovieList>
+      {showNotFoundMessage ? (
+      <div className="text-center">No movies found. Select another genre.</div>
+      ) : (
+        <MovieList loading={loading}>
+          {movies.map((item, key) => (
+            <MovieItem key={key} {...item} />
+          ))}
+        </MovieList>
+      )}
     </Layout>
   );
 };
