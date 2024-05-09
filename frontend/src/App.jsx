@@ -28,6 +28,17 @@ const App = props => {
         setLoading(false);
       });
   }
+
+  const fetchMoviesGenre = (id) => {
+    setLoading(true);
+
+    return fetch(`http://localhost:8000/testFindOneBySomeField/${id}`)
+    .then(response => response.json())
+    .then(data => {
+      setMovies(data);
+      setLoading(false);
+    });
+  }
   
   useEffect(() => {
     fetchMovies();
@@ -38,11 +49,13 @@ const App = props => {
 
   const handleLatestClickRating = () => setMovies(prev => [...prev]?.sort((a, b) => b.rating - a.rating));
 
+  const handleGenreChange = selectedGenreId => selectedGenreId ? fetchMoviesGenre(selectedGenreId) : fetchMovies();
+
   return (
     <Layout>
       <Heading />
       <Order onLatestClick ={handleLatestClick} onLatestClickRating={handleLatestClickRating} />
-      <SearchByGenre genres={genres} />
+      <SearchByGenre genres={genres} onGenreChange={handleGenreChange}/>
 
       <MovieList loading={loading}>
         {movies.map((item, key) => (
@@ -106,13 +119,18 @@ const Order = props => {
   )
 }
 
-const SearchByGenre = ({ genres }) => {
+const SearchByGenre = ({ genres, onGenreChange }) => {
+  const handleGenreChange = (event) => {
+    const selectedGenreId = event.target.value;
+    onGenreChange(selectedGenreId);
+  };
+
   return (
     <div className="max-w-md">
     <div className="mb-2 block">
-      <Label htmlFor="genres" value="Reorder movies by genre" className="font-light text-gray-500 mb-3 sm:text-xl dark:text-gray-400"/>
+      <Label htmlFor="genres" value="Filter movies by genre" className="font-light text-gray-500 mb-3 sm:text-xl dark:text-gray-400"/>
     </div>
-    <Select id="genres" required className='mb-10'>
+    <Select id="genres" required className='mb-10' onChange={handleGenreChange}>
       <option value="">Select a genre</option>
       {genres.map((genre, key) => (
           <option key={key} value={genre.id}>{genre.name}</option>

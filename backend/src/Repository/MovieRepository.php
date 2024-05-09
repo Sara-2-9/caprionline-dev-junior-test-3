@@ -45,4 +45,27 @@ class MovieRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    // public function findMoviesByGenre($idGenre): ?Movie
+    // {
+    //     return $this->createQueryBuilder('mg')
+    //         ->select('mg.movie_id')
+    //         ->andWhere('mg.genre_id = :idGenre')
+    //         ->setParameter('idGenre', $idGenre)
+    //         ->getQuery()
+    //         ->getResult();
+    // }
+
+    public function findMoviesByGenre($idGenre): ?array
+    {
+        $qb = $this->createQueryBuilder('m')
+            ->join('m.movieGenres', 'mg')
+            ->join('mg.genre', 'g')
+            ->where('g.id = :idGenre')
+            ->setParameter('idGenre', $idGenre)
+            ->select('m');
+    
+        return $qb->getQuery()->getResult();
+    }
+
 }
